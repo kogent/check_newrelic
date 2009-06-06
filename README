@@ -3,12 +3,11 @@ This project provides a Nagios plugin that will query NewRelic's api and alarm b
 This project will provide Groundwork profiles to give a good starting point for checking metrics provided by NewRelic.
 
 Dependencies:
-Ruby
-Rubygems
+ruby
+rubygems
 HTTParty gem
 
 TODO:
 Add Groundwork Profiles
 Write Tests
-Provide better documentation
-Rewrite README
+Provide documentation

@@ -19,7 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# 
+# check_newrelic.rb  [-w <warning_threshold>]
+#                    [-c <critical_threshold>]
+#                    [--app | -a <application_name>]
+#                    [--metric | -m <cpu|memory|errors|response|throughput|db>]
+#                    [--api-key | -k <newrelic api key>]
+#                    [--debug | -d]
+#                    [--help | -h]
 
 require 'rubygems'
 require 'httparty'
