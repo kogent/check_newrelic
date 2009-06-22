@@ -136,9 +136,9 @@ opts.each do |opt,arg|
       usage
       exit 0
     when '-w'
-      @warning_threshold = arg
+      @warning_threshold = arg.to_i
     when '-c'
-      @critical_threshold = arg
+      @critical_threshold = arg.to_i
     when '--app'
       @application_name = arg
     when '--metric'
