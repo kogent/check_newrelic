@@ -144,8 +144,13 @@ opts.each do |opt,arg|
     when '--metric'
       Nagios.unknown "Invalid argument for #{opt}" unless METRIC_TYPES.include? arg.downcase
       #format metric types to match those returned by NewRelic API
-      if arg.downcase == "response"
+      case arg.downcase
+      when "response"
         @metric = "Response Time"
+      when "cpu" || "db"
+        @metric = arg.upcase
+      when "db"
+        @metric = arg.upcase
       else
         @metric = arg.capitalize
       end
