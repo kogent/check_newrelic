@@ -102,6 +102,17 @@ class NewRelicApi
   
 end
 
+#values may come in as float strings
+def convert_to_test_value value, data_type
+  if data_type == "float"
+    test_value  = (value.to_f * 1000).to_i
+  else
+    test_value = value.to_i
+  end
+  test_value
+end
+
+
 # display command line options and explanation
 def usage
   puts <<-EOH
@@ -127,8 +138,9 @@ opts = GetoptLong.new(
 
 $debug = false
 METRIC_TYPES = %w'cpu memory errors response throughput db'
-@warning_threshold = 0
-@critical_threshold = 0
+@warning_threshold = @warning_threshold_formatted = 0
+@critical_threshold = @critical_threshold_formatted = 0
+@metric_data_type = "float"
 
 opts.each do |opt,arg|
   case opt
@@ -136,9 +148,9 @@ opts.each do |opt,arg|
       usage
       exit 0
     when '-w'
-      @warning_threshold = arg.to_i
+      @warning_threshold = arg
     when '-c'
-      @critical_threshold = arg.to_i
+      @critical_threshold = arg
     when '--app'
       @application_name = arg
     when '--metric'
@@ -147,6 +159,7 @@ opts.each do |opt,arg|
       case arg.downcase
       when "response"
         @metric = "Response Time"
+        @metric_data_type = "int"
       when "cpu" || "db"
         @metric = arg.upcase
       when "db"
@@ -161,6 +174,14 @@ opts.each do |opt,arg|
       puts "DEBUG FLAG SET"
       $debug = true
   end
+end
+
+if @metric_data_type == "int"
+  @warning_threshold = @warning_threshold.to_i
+  @critical_threshold = @critical_threshold.to_i
+else
+  @warning_threshold = @warning_threshold.to_f
+  @critical_threshold = @critical_threshold.to_f
 end
 
 puts "warning_threshold = #{@warning_threshold}" if $debug
@@ -200,7 +221,8 @@ unless parsed_data.member? @application_name
 end
 
 # grab the metric being queried
-metric_value = parsed_data[@application_name][@metric]['formatted_metric_value'].to_i
+formatted_metric_value = parsed_data[@application_name][@metric]['formatted_metric_value']
+metric_value = parsed_data[@application_name][@metric]['metric_value']
 
 label = "#{@application_name.split(" ").join("_")}_#{@metric.split(" ").join("_")}"
 
@@ -212,14 +234,20 @@ perf_data = Nagios.perf_data(
                           @critical_threshold) 
 puts "Perf Data: #{perf_data}" if $debug
 
+#handle variable datatypes in return data
+warning_threshold_value = convert_to_test_value @warning_threshold, @metric_data_type
+critical_threshold_value = convert_to_test_value @critical_threshold, @metric_data_type
+metric_value = convert_to_test_value metric_value, @metric_data_type
+
+
 # Crit if beyond critical threshold
-if metric_value > @critical_threshold
-  Nagios.critical "#{metric_value} returned for #{@metric} exceeds threshold of #{@critical_threshold} #{perf_data}"
+if metric_value > critical_threshold_value
+  Nagios.critical "#{formatted_metric_value} returned for #{@metric} exceeds threshold of #{@critical_threshold} #{perf_data}"
 end
 
 # Warn if beyond warning threshold
-if metric_value > @warning_threshold
-  Nagios.warning "#{metric_value} returned for #{@metric} exceeds threshold of #{@warning_threshold} #{perf_data}"
+if metric_value > warning_threshold_value
+  Nagios.warning "#{formatted_metric_value} returned for #{@metric} exceeds threshold of #{@warning_threshold} #{perf_data}"
 end
 
 # if not warn or critical, must be ok
