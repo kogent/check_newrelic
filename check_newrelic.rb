@@ -152,7 +152,7 @@ opts.each do |opt,arg|
     when '--api-key'
       @api_key = arg
     when '--debug'
-      require 'PP'
+      require 'pp'
       puts "DEBUG FLAG SET"
       $debug = true
   end
