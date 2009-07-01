@@ -242,12 +242,12 @@ metric_value = convert_to_test_value metric_value, @metric_data_type
 
 # Crit if beyond critical threshold
 if metric_value > critical_threshold_value
-  Nagios.critical "#{formatted_metric_value} returned for #{@metric} exceeds threshold of #{@critical_threshold} #{perf_data}"
+  Nagios.critical "#{formatted_metric_value} returned for #{@metric} exceeds threshold of #{@critical_threshold} | #{perf_data}"
 end
 
 # Warn if beyond warning threshold
 if metric_value > warning_threshold_value
-  Nagios.warning "#{formatted_metric_value} returned for #{@metric} exceeds threshold of #{@warning_threshold} #{perf_data}"
+  Nagios.warning "#{formatted_metric_value} returned for #{@metric} exceeds threshold of #{@warning_threshold} | #{perf_data}"
 end
 
 # if not warn or critical, must be ok
